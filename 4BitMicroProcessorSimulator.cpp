@@ -184,7 +184,7 @@ void Assembler(string infile, unsigned char* instrMem, int& instrno)	//converts 
 	{
 		getline(inputfile, instruction);	//stores string of each line in instruction
 
-		if (instruction == "")
+		if (instruction == "")	//to skip empty lines that could be read and stored as instruction
 			;
 		else
 		{
