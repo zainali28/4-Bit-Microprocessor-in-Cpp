@@ -91,7 +91,7 @@ struct ControlStruct
 	int R0 = 0;
 };
 
-struct ControlStruct InstructionDecoder(unsigned char MachineCode, int &RA, int &RB, int &R0)	
+struct ControlStruct InstructionDecoder(unsigned char MachineCode)	
 {
 	//stores each bit in the corresponding variable
 	bool J = BitValue(MachineCode, 1);
@@ -124,24 +124,11 @@ struct ControlStruct InstructionDecoder(unsigned char MachineCode, int &RA, int 
 	myStruct.RB_En = RB_En;
 	myStruct.R0_En = R0_En;
 
-	if (RA_En == 1 && myStruct.Sreg == 1)
-	{
-		RA = (S * 4) + (imm1 * 2) + (imm2 * 1);
-	}
-
-	if (RB_En == 1 && myStruct.Sreg == 1)
-	{
-		RB = (S * 4) + (imm1 * 2) + (imm2 * 1);
-	}
-
-	if (R0_En == 1 && myStruct.D1 == 1)
-	{
-		R0 = RA;
-	}
-
 	return myStruct;
 
 }
+
+
 
 string leftstring(string instruction)
 {
@@ -249,29 +236,7 @@ int InstructionExecutor(int& RA, int& RB, struct ControlStruct myStruct)	//tests
 	}
 }
 
-/*void writetofile(string filename, int RA, int RB)
-{
-	string instruction;
-
-	ofstream outputfile;
-	outputfile.open(filename);
-
-	outputfile << "RA = " << RA << endl;
-	outputfile << "RB = " << RB << endl;
-
-	ifstream inputfile;
-	inputfile.open(filename);
-
-	while (!inputfile.eof())
-	{
-		getline(inputfile, instruction);
-		cout << endl << instruction;
-	}
-
-}
-*/
-
-void WriteBack(int RA, int RB, int R0, struct ControlStruct myStruct, int ALU_output)
+void WriteBack(int &RA, int &RB, int &R0, struct ControlStruct myStruct, int ALU_output)
 {
 	int temp = 0;
 	int imm = (myStruct.S * 4) + (myStruct.imm1 * 2) + (myStruct.imm2 * 1);
@@ -289,19 +254,19 @@ void WriteBack(int RA, int RB, int R0, struct ControlStruct myStruct, int ALU_ou
 	if (myStruct.RA_En == 1)
 	{
 		RA = temp;
-		cout << endl << RA;
+		cout << endl << "RA: " << RA;
 	}
 
 	else if (myStruct.RB_En == 1)
 	{
 		RB = temp;
-		cout << endl << RB;
+		cout << endl << "RB: " << RB;
 	}
 
 	else if (myStruct.R0_En == 1)
 	{
 		R0 = RA;
-		cout << endl << R0;
+		cout << endl << "R0: " << R0;
 	}
 }
 
@@ -321,12 +286,10 @@ int main()
 	for (int i = 0; i < instrno; i++)
 	{
 		instrFetch(programcounter, &instrMem[0], instructionReg);	//stores current instruction in machinecode variable
-		struct ControlStruct myControlStruct = InstructionDecoder(instructionReg, RA, RB, R0);	//decodes the instruction
+		struct ControlStruct myControlStruct = InstructionDecoder(instructionReg);	//decodes the instruction
 		ALU_output = InstructionExecutor(RA, RB, myControlStruct);	//executes the operation
-		WriteBack(RA, RB, R0, myControlStruct, ALU_output);
+		WriteBack(RA, RB, R0, myControlStruct, ALU_output);	//updates value of register
 	}
-
-//	writetofile("swapoutput.asm", RA, RB);
 
 	return 0;
 }
